@@ -18,7 +18,7 @@ app.use(express.json());
 //routes
 
 app.get("/", (req, res) => {
-  res.send({ msg: "Running" });
+  res.send("Api working");
 });
 
 app.get("/debug-sentry", function mainHandler(req, res) {
@@ -28,10 +28,10 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 app.post("/webhooks", clerkWebhook);
 
 //inits
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 Sentry.setupExpressErrorHandler(app);
 
 app.listen(PORT, () => {
-  console.log("Server is running on port:", PORT);
+  console.log(`Server running on the port: ${PORT}`);
 });
