@@ -1,5 +1,5 @@
 import { Webhook } from "svix";
-import User from "../models/users.js";
+import User from "../models/Users.js";
 
 //Api controller function
 
