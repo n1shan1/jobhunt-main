@@ -1,54 +1,56 @@
 import { Webhook } from "svix";
 import User from "../models/Users.js";
 
-//Api controller function
-
 export const clerkWebhook = async (req, res) => {
   try {
-    //create a svix instance with clerk webhook secret
-    const webHook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    //verifying headers
-    await webHook.verify(JSON.stringify(req.body), {
+    // Validate environment variable
+    if (!process.env.CLERK_WEBHOOK_SECRET) {
+      throw new Error("CLERK_WEBHOOK_SECRET is not defined.");
+    }
+
+    // Create Svix instance and verify webhook
+    const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    webhook.verify(JSON.stringify(req.body), {
       "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamps"],
+      "svix-timestamp": req.headers["svix-timestamp"],
       "svix-signature": req.headers["svix-signature"],
     });
 
-    //getting data from req body
     const { data, type } = req.body;
+
+    if (!data) {
+      return res.status(400).json({ success: false, msg: "Invalid payload." });
+    }
+
+    const extractUserData = (data) => ({
+      email: data.email_addresses?.[0]?.email_address || "",
+      name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+      image: data.image_url || "",
+    });
+
     switch (type) {
       case "user.created": {
-        const userData = {
-          _id: data.id,
-          email: data.email_addresses[0].email_address,
-          name: data.first_name + data.last_name,
-          image: data.image_url,
-          resume: "",
-        };
+        const userData = { ...extractUserData(data), _id: data.id, resume: "" };
         await User.create(userData);
-        res.json({});
-        break;
+        return res.status(201).json({ success: true, msg: "User created." });
       }
+
       case "user.updated": {
-        const userData = {
-          email: data.email_addresses[0].email_address,
-          name: data.first_name + data.last_name,
-          image: data.image_url,
-        };
+        const userData = extractUserData(data);
         await User.findByIdAndUpdate(data.id, userData);
-        res.json({});
-        break;
+        return res.status(200).json({ success: true, msg: "User updated." });
       }
+
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
-        res.json({});
-        break;
+        return res.status(200).json({ success: true, msg: "User deleted." });
       }
+
       default:
-        break;
+        return res.status(204).send(); // No action for unhandled events
     }
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, msg: "Webhooks Error" });
+    console.error("Webhook error:", error);
+    return res.status(500).json({ success: false, msg: "Webhook error." });
   }
 };
