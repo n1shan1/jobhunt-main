@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { JobCategories, JobLocations } from "../assets/assets";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 const AddJob = () => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("Chennai");
@@ -12,22 +15,53 @@ const AddJob = () => {
   const editorRef = useRef(null);
   const quillRef = useRef(null);
 
+  const { backendUrl, companyToken } = useContext(AppContext);
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const description = quillRef.current.root.innerHTML;
+      const { data } = await axios.post(
+        backendUrl + "/api/company/post-job",
+        {
+          title,
+          description,
+          salary,
+          location,
+          category,
+          level,
+        },
+        { headers: { token: companyToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        setTitle("");
+        setSalary(0);
+        quillRef.current.root.innerHTML = "";
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     // Initialize Quill once
     if (!quillRef.current && editorRef.current) {
       quillRef.current = new Quill(editorRef.current, { theme: "snow" });
 
-      // Listen to changes in Quill editor
-      quillRef.current.on("text-change", () => {
-        setDescription(quillRef.current.root.innerHTML); // Update description
-      });
+      // // Listen to changes in Quill editor
+      // quillRef.current.on("text-change", () => {
+      //   setDescription(quillRef.current.root.innerHTML); // Update description
+      // });
     }
   }, []);
 
   return (
     <form
       className="container p-4 flex flex-col w-full items-start gap-3"
-      action=""
+      onSubmit={onSubmitHandler}
     >
       <div className="w-full ">
         <p className="mb-2">Job title</p>
