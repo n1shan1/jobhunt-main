@@ -6,12 +6,12 @@ import { toast } from "react-toastify";
 import Loading from "../components/Loading";
 
 const ViewApplications = () => {
-  const { backendUrl, companyToken } = useContext(AppContext);
+  const { backendUrl, companyToken, userData } = useContext(AppContext);
   const [applicants, setApplicants] = useState([]);
 
   //function to fetch company data
   const fetchCompanyJobApplications = async () => {
-    console.log(companyToken);
+    // console.log(companyToken);
     try {
       const { data } = await axios.get(`${backendUrl}/api/company/applicants`, {
         headers: { token: companyToken },
@@ -50,11 +50,7 @@ const ViewApplications = () => {
   }, [companyToken]);
   return applicants ? (
     applicants.length === 0 ? (
-      <div className="flex items-center justify-center h-[75vh]">
-        <p className="text-xl sm:text-2xl">
-          No applications available at the moment!
-        </p>
-      </div>
+      <Loading />
     ) : (
       <div className="container mx-auto p-4">
         <div className="">
@@ -94,10 +90,10 @@ const ViewApplications = () => {
                     <td className="py-2 px-4 border-b">
                       <a
                         className="bg-blue-50 text-blue-400 px-3 py-1 rounded inline-flex gap-2 items-center"
-                        href=""
+                        href={applicant.userId.resume}
                         target="_blank"
                       >
-                        {}
+                        {"Resume"}
                         <img src={assets.resume_download_icon} alt="img" />
                       </a>
                     </td>
@@ -120,7 +116,7 @@ const ViewApplications = () => {
                               onClick={() =>
                                 updateStatus(applicant._id, "Rejected")
                               }
-                              className="block w-full lext-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                              className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
                             >
                               Reject
                             </button>
@@ -138,7 +134,11 @@ const ViewApplications = () => {
       </div>
     )
   ) : (
-    <Loading />
+    <div className="flex items-center justify-center h-[75vh]">
+      <p className="text-xl sm:text-2xl">
+        No applications available at the moment!
+      </p>
+    </div>
   );
 };
 

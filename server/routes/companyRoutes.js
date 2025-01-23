@@ -2,6 +2,7 @@ import express from "express";
 import {
   changeJobApplicationStatus,
   changeVisibility,
+  getAllCompanyData,
   getCompanyData,
   getCompanyJobApplicants,
   getCompanyPostedJobs,
@@ -42,5 +43,7 @@ companyRouter.post(
 
 //change application visibility
 companyRouter.post("/change-visibility", protectCompany, changeVisibility);
+
+companyRouter.get("/recruiters", getAllCompanyData);
 
 export default companyRouter;

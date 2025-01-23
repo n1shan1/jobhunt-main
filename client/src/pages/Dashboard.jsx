@@ -25,26 +25,33 @@ function Dashboard() {
       <div className="shadow py-4">
         <div className="px-4 flex justify-between items-center">
           <img
+            width={160}
             className="max-sm:w-32 cursor-pointer"
             src={assets.logo}
             alt="logo"
-          />
+          />{" "}
+          <p className="font-bold"> Recruiters Dashboard</p>
           {companyData && (
             <div className="flex items-center gap-3">
-              <p className="max-sm:hidden">Welcome {companyData.name}</p>
+              <p className="max-sm:hidden">
+                {"Logged in as: "}
+                <span className="text-blue-500 text-lg">
+                  {companyData.name}
+                </span>
+              </p>
               <div className="relative group">
                 <img
-                  className="w-8 border rounded-full"
+                  className="w-10 border rounded-full mr-3"
                   src={companyData.image}
                   alt="icon"
                 />
                 <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12">
-                  <ul className="list-none m-0 p-0 bg-white rounded-md border text-sm">
+                  <ul className="flex flex-row list-none m-0 p-0 bg-white rounded-md border text-sm">
                     <li
                       onClick={logout}
-                      className="py-1 px-2 cursor-pointer pr-10"
+                      className="py-2 px-8 cursor-pointer pr-10"
                     >
-                      Logout
+                      Logout{" "}
                     </li>
                   </ul>
                 </div>

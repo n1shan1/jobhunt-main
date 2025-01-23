@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { assets } from "../assets/assets";
 import moment from "moment";
@@ -7,11 +7,15 @@ import { AppContext } from "../context/AppContext";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Loading from "../components/Loading";
+
 export default function Applications() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const [isEdit, setIsEdit] = useState(false);
   const [resume, setResume] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const {
     backendUrl,
     userData,
@@ -22,12 +26,11 @@ export default function Applications() {
 
   const updateResume = async () => {
     try {
+      setIsUploading(true);
       const formData = new FormData();
-      const { user } = useUser();
       formData.append("resume", resume);
 
       const token = await getToken();
-
       const { data } = await axios.post(
         `${backendUrl}/api/users/resume`,
         formData,
@@ -48,18 +51,21 @@ export default function Applications() {
     } finally {
       setIsEdit(false);
       setResume(null);
+      setIsUploading(false);
     }
   };
+
   useEffect(() => {
-    fetchUserApplications;
+    fetchUserApplications();
   }, [user]);
+
   return (
     <>
       <Navbar />
       <div className="container px-4 min-h-[65vh] 2xl:px-20 mx-auto my-10">
         <h2 className="text-xl font-semibold">Your Resume</h2>
         <div className="flex gap-2 mb-6 mt-3">
-          {isEdit || (userData && userData.resume === "") ? (
+          {isEdit || userData?.resume === "" ? (
             <>
               <label className="flex items-center" htmlFor="resumeUpload">
                 <p className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg mr-2 cursor-pointer">
@@ -70,24 +76,25 @@ export default function Applications() {
                   onChange={(e) => setResume(e.target.files[0])}
                   accept="application/pdf"
                   type="file"
-                  name=""
                   hidden
                 />
                 <img src={assets.profile_upload_icon} alt="icon" />
               </label>
               <button
                 onClick={updateResume}
-                className="bg-green-100 border border-green-400 px-4 py-2 rounded-lg"
+                disabled={isUploading}
+                className="bg-green-100 border border-green-400 px-4 py-2 rounded-lg flex items-center gap-2"
               >
-                {"Save"}
+                {isUploading ? <Loading /> : "Save"}
               </button>
             </>
           ) : (
             <div className="flex gap-2 ">
               <a
                 target="_blank"
+                rel="noreferrer"
                 className="bg-blue-100 text-blue-600 px-6 py-2 rounded-lg"
-                href={userData.resume}
+                href={userData?.resume}
               >
                 Resume
               </a>
@@ -101,24 +108,24 @@ export default function Applications() {
           )}
         </div>
         <h2 className="text-xl font-semibold mb-4">Jobs Applied</h2>
-        <table className="min-w-full bg-white border rounded-lg">
-          <thead>
-            <tr>
-              <th className="py-3 px-3 border-b text-left">Company</th>
-              <th className="py-3 px-3 border-b text-left">Job Title</th>
-              <th className="py-3 px-3 border-b text-left max-sm:hidden">
-                Location
-              </th>
-              <th className="py-3 px-3 border-b text-left max-sm:hidden">
-                Date
-              </th>
-              <th className="py-3 px-3 border-b text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userApplications?.map(
-              (job, index) =>
-                true && (
+        {userApplications ? (
+          <table className="min-w-full bg-white border rounded-lg">
+            <thead>
+              <tr>
+                <th className="py-3 px-3 border-b text-left">Company</th>
+                <th className="py-3 px-3 border-b text-left">Job Title</th>
+                <th className="py-3 px-3 border-b text-left max-sm:hidden">
+                  Location
+                </th>
+                <th className="py-3 px-3 border-b text-left max-sm:hidden">
+                  Date
+                </th>
+                <th className="py-3 px-3 border-b text-left">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userApplications.length > 0 ? (
+                userApplications.map((job, index) => (
                   <tr key={index}>
                     <td className="py-3 px-4 flex items-center gap-3 border-b">
                       <img
@@ -139,20 +146,31 @@ export default function Applications() {
                       <span
                         className={`${
                           job.status === "Accepted"
-                            ? "bg-green-100"
+                            ? "bg-green-300"
                             : job.status === "Rejected"
-                            ? "bg-red-100"
-                            : "bg-blue-100"
-                        } px-4 py-2 rounded`}
+                            ? "bg-red-300"
+                            : "bg-blue-300"
+                        } px-4 py-2 rounded text-center w-full`}
                       >
                         {job.status}
                       </span>
                     </td>
                   </tr>
-                )
-            )}
-          </tbody>
-        </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-gray-500">
+                    No applications found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        ) : (
+          <div className="flex justify-center my-10">
+            <Loading />
+          </div>
+        )}
       </div>
       <Footer />
     </>

@@ -125,14 +125,6 @@ export const getCompanyData = async (req, res) => {
 export const postNewJob = async (req, res) => {
   const { title, description, location, salary, level, category } = req.body;
   const companyId = req.company._id;
-  console.log(companyId, {
-    title,
-    description,
-    location,
-    salary,
-    level,
-    category,
-  });
 
   try {
     const newJob = new Job({
@@ -163,7 +155,7 @@ export const postNewJob = async (req, res) => {
 export const getCompanyJobApplicants = async (req, res) => {
   try {
     const companyId = req.company._id;
-    console.log(companyId);
+    // console.log(companyId);
     // console.log(req.headers);
     const applications = await JobApplications.find({ companyId })
       .populate("userId", "name image resume")
@@ -217,8 +209,8 @@ export const changeVisibility = async (req, res) => {
     const companyId = req.company?._id;
 
     // Log inputs for debugging
-    console.log("Request Body:", req.body);
-    console.log("Company ID:", companyId);
+    // console.log("Request Body:", req.body);
+    // console.log("Company ID:", companyId);
 
     // Find the job
     const job = await Job.findById(id);
@@ -241,5 +233,41 @@ export const changeVisibility = async (req, res) => {
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAllCompanyData = async (req, res) => {
+  try {
+    // Fetch recruiters with only the selected fields: name, email, image
+    const recruiters = await Company.find({}, "name email image");
+    const total = recruiters.length;
+
+    // Log success data for debugging
+    // console.log({
+    //   success: true,
+    //   data: {
+    //     recruiters,
+    //     total,
+    //   },
+    // });
+
+    // Respond with structured success data
+    res.status(200).json({
+      success: true,
+      data: {
+        recruiters,
+        total,
+      },
+    });
+  } catch (error) {
+    // Log error message for debugging
+    console.error(error);
+
+    // Respond with error details
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recruiters data",
+      error: error.message,
+    });
   }
 };

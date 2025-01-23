@@ -5,20 +5,21 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading";
+
 const ManageJobs = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const { backendUrl, companyToken } = useContext(AppContext);
 
-  //function to fetch the company jib application data
+  // Function to fetch company job application data
   const fetchDataFromBackend = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/company/list-jobs", {
-        headers: { token: companyToken },
+      const { data } = await axios.get(`${backendUrl}/api/company/list-jobs`, {
+        headers: { token: companyToken }, // Keep the original token structure
       });
       if (data.success) {
         setJobs(data.jobsData.reverse());
-        console.log(data.jobsData);
+        // console.log(data.jobsData);
       } else {
         toast.error(data.message);
       }
@@ -30,9 +31,9 @@ const ManageJobs = () => {
   const toggleVisible = async (id) => {
     try {
       const { data } = await axios.post(
-        backendUrl + "/api/company/change-visibility",
+        `${backendUrl}/api/company/change-visibility`,
         { id },
-        { headers: { token: companyToken } }
+        { headers: { token: companyToken } } // Keep the original token structure
       );
 
       if (data.success) {
@@ -52,9 +53,7 @@ const ManageJobs = () => {
 
   return jobs ? (
     jobs.length === 0 ? (
-      <div className="flex items-center justify-center h-[75vh]">
-        <p className="text-xl sm:text-2xl">No jobs available at the moment!</p>
-      </div>
+      <Loading />
     ) : (
       <div className="container p-4 max-w-5xl">
         <div className="overflow-x-auto">
@@ -113,7 +112,9 @@ const ManageJobs = () => {
       </div>
     )
   ) : (
-    <Loading />
+    <div className="flex items-center justify-center h-[75vh]">
+      <p className="text-xl sm:text-2xl">No jobs available at the moment!</p>
+    </div>
   );
 };
 

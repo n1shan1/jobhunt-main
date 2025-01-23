@@ -36,8 +36,8 @@ export const getUserData = async (req, res) => {
 export const applyForJob = async (req, res) => {
   const jobId = req.body.jobId;
   const userId = req.auth?.userId; // Ensure `userId` is properly accessed
-  console.log("applyForJob: jobId", jobId);
-  console.log("applyForJob: userId", userId);
+  // console.log("applyForJob: jobId", jobId);
+  // console.log("applyForJob: userId", userId);
 
   try {
     // Check if the job ID or user ID is missing

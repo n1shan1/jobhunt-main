@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { assets, JobCategories, JobLocations } from "../assets/assets";
 import JobCard from "./JobCard";
+import Loading from "./Loading";
 
 const JobListing = () => {
   const { searchFilter, isSearched, setSearchFilter, jobs } =
@@ -12,6 +13,7 @@ const JobListing = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
 
+  // Handle category filter change
   const handleCategoryChange = (category) => {
     setSelectedCategories((prev) =>
       prev.includes(category)
@@ -19,6 +21,8 @@ const JobListing = () => {
         : [...prev, category]
     );
   };
+
+  // Handle location filter change
   const handleLocationChange = (location) => {
     setSelectedLocations((prev) =>
       prev.includes(location)
@@ -26,6 +30,8 @@ const JobListing = () => {
         : [...prev, location]
     );
   };
+
+  // Filtered jobs based on search and selected filters
   const filteredJobs = useMemo(() => {
     const matchesCategory = (job) =>
       selectedCategories.length === 0 ||
@@ -36,11 +42,11 @@ const JobListing = () => {
       selectedLocations.includes(job.location);
 
     const matchesTitle = (job) =>
-      searchFilter.title === "" ||
+      !searchFilter.title ||
       job.title.toLowerCase().includes(searchFilter.title.toLowerCase());
 
     const matchesSearchLocation = (job) =>
-      searchFilter.location === "" ||
+      !searchFilter.location ||
       job.location.toLowerCase().includes(searchFilter.location.toLowerCase());
 
     return jobs
@@ -57,8 +63,8 @@ const JobListing = () => {
 
   return (
     <div className="container mx-auto flex flex-col lg:flex-row py-8">
-      {/* Sidebar */}
-      <div className="w-full lg:w-1/4 bg-white px-4">
+      {/* Sidebar Filters */}
+      <aside className="w-full lg:w-1/4 bg-white px-4">
         {isSearched && (searchFilter.title || searchFilter.location) && (
           <div className="mb-4">
             <h3 className="font-medium text-lg">Current Search</h3>
@@ -72,7 +78,7 @@ const JobListing = () => {
                     }
                     className="cursor-pointer"
                     src={assets.cross_icon}
-                    alt="clear title filter"
+                    alt="Clear Title Filter"
                   />
                 </span>
               )}
@@ -85,7 +91,7 @@ const JobListing = () => {
                     }
                     className="cursor-pointer"
                     src={assets.cross_icon}
-                    alt="clear location filter"
+                    alt="Clear Location Filter"
                   />
                 </span>
               )}
@@ -97,11 +103,12 @@ const JobListing = () => {
           onClick={() => setShowFilter((prev) => !prev)}
           className="px-6 py-1.5 border border-gray-500 lg:hidden"
         >
-          {showFilter ? "Close" : "Filters"}
+          {showFilter ? "Close Filters" : "Show Filters"}
         </button>
 
         <div className={showFilter ? "" : "max-lg:hidden"}>
-          <h4 className="font-medium text-lg py-4">Search by Categories</h4>
+          {/* Categories Filter */}
+          <h4 className="font-medium text-lg py-4">Filter by Categories</h4>
           <ul className="space-y-4 text-gray-500">
             {JobCategories.map((category, index) => (
               <li key={index} className="flex items-center gap-3">
@@ -115,8 +122,10 @@ const JobListing = () => {
               </li>
             ))}
           </ul>
+
+          {/* Locations Filter */}
           <h4 className="font-medium text-lg py-4 pt-14">
-            Search by Locations
+            Filter by Locations
           </h4>
           <ul className="space-y-4 text-gray-500">
             {JobLocations.map((location, index) => (
@@ -132,21 +141,25 @@ const JobListing = () => {
             ))}
           </ul>
         </div>
-      </div>
+      </aside>
 
       {/* Job Listings */}
       <section className="w-full lg:w-3/4 px-4">
         <h3 className="font-medium text-3xl mb-2">Latest Jobs</h3>
-        <p className="mb-6">Get your dream jobs at your fingertips</p>
-        {filteredJobs.length === 0 ? (
-          <p className="text-center text-gray-500">No jobs found.</p>
-        ) : (
+        <p className="mb-6">Discover your next opportunity today!</p>
+        {filteredJobs.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredJobs
               .slice((currentPage - 1) * 6, currentPage * 6)
               .map((job, index) => (
                 <JobCard key={index} job={job} />
               ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-48">
+            <p className="text-gray-500">
+              No jobs found matching your criteria.
+            </p>
           </div>
         )}
 

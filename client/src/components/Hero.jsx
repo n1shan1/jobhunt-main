@@ -22,10 +22,7 @@ export default function Hero() {
 
   return (
     <div className="container 2xl:px-20 mx-auto my-10">
-      <div
-        className="bg-gradient-to-r from-purple-800 to-purple-950 text-white py-10 text-center mx-2 rounded-xl
-      "
-      >
+      <div className="bg-gradient-to-r from-purple-800 to-purple-950 text-white py-10 text-center rounded-xl shadow-lg">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium mb-4">
           Apply ot over 1000+ jobs on the portal!
         </h2>

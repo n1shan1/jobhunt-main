@@ -8,7 +8,9 @@
 *{
     font-family: Outfit;
 }
-
+html {
+  scroll-behavior: smooth;
+}
 @layer base {
   html{
     scroll-behavior: smooth;
