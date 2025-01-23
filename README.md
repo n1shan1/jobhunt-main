@@ -100,6 +100,3 @@ jobhunt/
 
 ## 📄 License
 MIT License
-
-## 🤝 Contact
-Nishan - [Your Contact Info]
